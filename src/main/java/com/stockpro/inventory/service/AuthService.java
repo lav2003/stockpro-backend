@@ -32,7 +32,17 @@ public class AuthService {
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole("CUSTOMER");
+        user.setPhone(request.getPhone());
+        user.setAddress(request.getAddress());
+
+        // Only allow ADMIN or CUSTOMER; default to CUSTOMER if invalid/missing
+        String requestedRole = request.getRole();
+        if (requestedRole != null && requestedRole.equalsIgnoreCase("ADMIN")) {
+            user.setRole("ADMIN");
+        } else {
+            user.setRole("CUSTOMER");
+        }
+
         userRepository.save(user);
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
