@@ -46,10 +46,12 @@ public class SecurityConfig {
                 // Suppliers are fully admin-only, including reads
                 .requestMatchers("/api/suppliers/**").hasRole("ADMIN")
 
-                // Orders: anyone logged in can create/view, but only admin
-                // can update order status (mark completed/cancelled)
+                // Orders: anyone logged in can create/view.
+                // Customers can cancel their OWN pending order via /cancel.
+                // Only admin can change status to any other value via /status.
                 .requestMatchers(HttpMethod.GET, "/api/orders/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/orders").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/orders/*/cancel").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/orders/**").hasRole("ADMIN")
 
                 .anyRequest().authenticated())

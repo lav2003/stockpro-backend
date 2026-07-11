@@ -48,7 +48,6 @@ public class OrderService {
             throw new RuntimeException("Only " + available + " item(s) left in stock");
         }
 
-        // Deduct stock (Stock Lock)
         int remaining = available - requestedQty;
         product.setQuantity(remaining);
         if (remaining == 0) product.setStatus("Out of Stock");
@@ -65,9 +64,32 @@ public class OrderService {
     public Order updateStatus(Long id, String status) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+        restockIfCancelling(order, status);
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
 
-        // If cancelling, restock the product
-        if ("Cancelled".equalsIgnoreCase(status) && !"Cancelled".equalsIgnoreCase(order.getStatus())) {
+    // Customer-only: cancel their own pending order
+    @Transactional
+    public Order cancelMyOrder(Long id, String email) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (order.getCustomerEmail() == null ||
+                !order.getCustomerEmail().equalsIgnoreCase(email)) {
+            throw new RuntimeException("You can only cancel your own orders");
+        }
+        if (!"Pending".equalsIgnoreCase(order.getStatus())) {
+            throw new RuntimeException("Only pending orders can be cancelled");
+        }
+
+        restockIfCancelling(order, "Cancelled");
+        order.setStatus("Cancelled");
+        return orderRepository.save(order);
+    }
+
+    private void restockIfCancelling(Order order, String newStatus) {
+        if ("Cancelled".equalsIgnoreCase(newStatus) && !"Cancelled".equalsIgnoreCase(order.getStatus())) {
             if (order.getProductId() != null) {
                 productRepository.findById(order.getProductId()).ifPresent(product -> {
                     int restored = (product.getQuantity() == null ? 0 : product.getQuantity())
@@ -80,9 +102,6 @@ public class OrderService {
                 });
             }
         }
-
-        order.setStatus(status);
-        return orderRepository.save(order);
     }
 
     public List<Order> getByStatus(String status) {

@@ -41,10 +41,22 @@ public class OrderController {
         }
     }
 
+    // Admin: change status to any value
     @PutMapping("/{id}/status")
     public ResponseEntity<Order> updateStatus(@PathVariable Long id,
             @RequestParam String status) {
         return ResponseEntity.ok(orderService.updateStatus(id, status));
+    }
+
+    // Customer: cancel their own pending order
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelMyOrder(@PathVariable Long id,
+            @RequestParam String email) {
+        try {
+            return ResponseEntity.ok(orderService.cancelMyOrder(id, email));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
     @GetMapping("/status")
