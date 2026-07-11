@@ -5,6 +5,7 @@ import com.stockpro.inventory.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -19,6 +20,16 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<List<Order>> getAll() {
         return ResponseEntity.ok(orderService.getAllOrders());
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<Order>> getMyOrders(@RequestParam String email) {
+        return ResponseEntity.ok(orderService.getMyOrders(email));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<Map<String, Object>> getSummary() {
+        return ResponseEntity.ok(orderService.getSummary());
     }
 
     @PostMapping

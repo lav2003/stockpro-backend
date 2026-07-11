@@ -12,6 +12,7 @@ public class Order {
     private Long id;
     private String orderId;
     private String customerName;
+    private String customerEmail;
     private Integer totalItems;
     private Double totalAmount;
     private String status = "Pending";
@@ -23,6 +24,8 @@ public class Order {
     public void setOrderId(String o) { this.orderId = o; }
     public String getCustomerName() { return customerName; }
     public void setCustomerName(String n) { this.customerName = n; }
+    public String getCustomerEmail() { return customerEmail; }
+    public void setCustomerEmail(String e) { this.customerEmail = e; }
     public Integer getTotalItems() { return totalItems; }
     public void setTotalItems(Integer t) { this.totalItems = t; }
     public Double getTotalAmount() { return totalAmount; }
